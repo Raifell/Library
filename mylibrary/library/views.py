@@ -8,31 +8,52 @@ def show_start_page(request):
 
 
 def show_showbooks_page(request):
+    if request.method == "POST":
+        if 'delete' in request.POST:
+            Book.objects.filter(title=request.POST['delete']).delete()
+
     context = {'books': Book.objects.all()}
 
     return render(request, "showBooks.html", context=context)
 
 
+def valid_book(qery):
+    valid = True
+
+    return valid
+    pass
+
+
 def show_addbook_page(request):
+    data = False
+    update = False
+    valid = True
     if request.method == "POST":
-        book_title = request.POST.get("book_title")
-        author_name = request.POST.get("book_author_name")
-        author_surname = request.POST.get("book_author_surname")
-        genre = request.POST.get("book_genre")
-        publication_year = request.POST.get("publication_year")
-        page_count = request.POST.get("page_count")
-        description = request.POST.get("description")
+        if 'add_book' in request.POST:
+            new_book = request.POST.getlist('add_book')
+            if new_book[5]:
+                valid_book(new_book)
+                # Book.objects.create(title=new_book[0],
+                #                     author_name=new_book[1],
+                #                     author_surname=new_book[2],
+                #                     genre=new_book[3],
+                #                     publication_year=new_book[4],
+                #                     page_count=new_book[5],
+                #                     description=new_book[6])
+        elif 'update' in request.POST:
+            data = Book.objects.get(id=request.POST['update'])
+            update = 'update'
+        elif 'update_book' in request.POST:
+            up_book_value = request.POST.getlist('update_book')
+            Book.objects.filter(id=up_book_value[7]).update(title=up_book_value[0],
+                                                            author_name=up_book_value[1],
+                                                            author_surname=up_book_value[2],
+                                                            genre=up_book_value[3],
+                                                            publication_year=up_book_value[4],
+                                                            page_count=up_book_value[5],
+                                                            description=up_book_value[6])
 
-        if page_count:
-            Book.objects.create(title=book_title,
-                                author_name=author_name,
-                                author_surname=author_surname,
-                                genre=genre,
-                                publication_year=publication_year,
-                                page_count=page_count,
-                                description=description)
-
-    return render(request, "addBook.html")
+    return render(request, "addBook.html", {'data': data, 'update': update, 'valid': valid})
 
 
 def show_addreader_page(request):
@@ -66,3 +87,12 @@ def show_addrent_page(request):
 
     return render(request, "addRent.html")
 
+
+def show_readers(request):
+    context = {'readers': Reader.objects.all()}
+    return render(request, 'showreaders.html', context=context)
+
+
+def show_rents(request):
+    context = {'rents': BookRent.objects.all()}
+    return render(request, 'showrents.html', context=context)

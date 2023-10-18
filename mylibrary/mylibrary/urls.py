@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from library import views
 
 urlpatterns = [
@@ -25,5 +27,7 @@ urlpatterns = [
     path('addreader/', views.show_addreader_page),
     path('addrent/', views.show_addrent_page),
     path('admin/', admin.site.urls),
-]
+    path('showreaders/', views.show_readers),
+    path('showrents/', views.show_rents)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
