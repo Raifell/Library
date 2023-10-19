@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from .models import Book, Reader, BookRent
 
@@ -19,41 +20,62 @@ def show_showbooks_page(request):
 
 def valid_book(qery):
     valid = True
+    for book_desc_value in qery[:4]:
+        if book_desc_value:
+            for index in book_desc_value:
+                if valid:
+                    valid = bool(re.compile(r'[a-zA-Zа-яА-ЯйЙёЁ]').match(index))
 
+    if qery[4].isdigit():
+        if int(qery[4]) < 1900 or int(qery[4]) > 2023:
+            valid = False
+    else:
+        valid = False
     return valid
-    pass
 
 
 def show_addbook_page(request):
     data = False
     update = False
     valid = True
+    book_action = None
     if request.method == "POST":
         if 'add_book' in request.POST:
             new_book = request.POST.getlist('add_book')
             if new_book[5]:
-                valid_book(new_book)
-                # Book.objects.create(title=new_book[0],
-                #                     author_name=new_book[1],
-                #                     author_surname=new_book[2],
-                #                     genre=new_book[3],
-                #                     publication_year=new_book[4],
-                #                     page_count=new_book[5],
-                #                     description=new_book[6])
+                valid = valid_book(new_book)
+                if valid:
+                    book_action = 'new'
+                    Book.objects.create(title=new_book[0],
+                                        author_name=new_book[1],
+                                        author_surname=new_book[2],
+                                        genre=new_book[3],
+                                        publication_year=new_book[4],
+                                        page_count=new_book[5],
+                                        description=new_book[6])
+            else:
+                valid = False
         elif 'update' in request.POST:
             data = Book.objects.get(id=request.POST['update'])
             update = 'update'
         elif 'update_book' in request.POST:
             up_book_value = request.POST.getlist('update_book')
-            Book.objects.filter(id=up_book_value[7]).update(title=up_book_value[0],
-                                                            author_name=up_book_value[1],
-                                                            author_surname=up_book_value[2],
-                                                            genre=up_book_value[3],
-                                                            publication_year=up_book_value[4],
-                                                            page_count=up_book_value[5],
-                                                            description=up_book_value[6])
+            if up_book_value[5]:
+                valid = valid_book(up_book_value)
+                if valid:
+                    book_action = 're_new'
+                    Book.objects.filter(id=up_book_value[7]).update(title=up_book_value[0],
+                                                                    author_name=up_book_value[1],
+                                                                    author_surname=up_book_value[2],
+                                                                    genre=up_book_value[3],
+                                                                    publication_year=up_book_value[4],
+                                                                    page_count=up_book_value[5],
+                                                                    description=up_book_value[6])
 
-    return render(request, "addBook.html", {'data': data, 'update': update, 'valid': valid})
+            else:
+                valid = False
+
+    return render(request, "addBook.html", {'data': data, 'update': update, 'valid': valid, 'book_action': book_action})
 
 
 def show_addreader_page(request):
