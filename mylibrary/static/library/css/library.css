@@ -1,9 +1,21 @@
 .line_info{
     width: 600px;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
 }
-.line_info .navi{
+.navi{
     display: flex;
+    flex-direction: row;
     gap: 10px;
+}
+.line_reader{
+    width: 600px;
+    background: sandybrown;
+}
+.line_info_user{
+    width: 500px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }

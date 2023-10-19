@@ -66,7 +66,7 @@
             {% csrf_token %}
             <div class="mb-3" style="margin-top: 50px;">
                 <label for="book_title" class="form-label">Book title</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <input name="update_book" type="text" class="form-control" id="book_title" value="{{ data.title }}">
                 {% else %}
                     <input name="add_book" type="text" class="form-control" id="book_title">
@@ -74,7 +74,7 @@
             </div>
             <div class="mb-3">
                 <label for="book_author_name" class="form-label">Author name</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <input name="update_book" type="text" class="form-control" id="book_author_name" value="{{ data.author_name }}">
                 {% else %}
                     <input name="add_book" type="text" class="form-control" id="book_author_name">
@@ -82,7 +82,7 @@
             </div>
             <div class="mb-3">
                 <label for="book_author_surname" class="form-label">Author surname</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <input name="update_book" type="text" class="form-control" id="book_author_surname" value="{{ data.author_surname }}">
                 {% else %}
                     <input name="add_book" type="text" class="form-control" id="book_author_surname">
@@ -90,7 +90,7 @@
             </div>
             <div class="mb-3">
                 <label for="book_genre" class="form-label">Genre</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <input name="update_book" type="text" class="form-control" id="book_genre" value="{{ data.genre }}">
                 {% else %}
                     <input name="add_book" type="text" class="form-control" id="book_genre">
@@ -98,7 +98,7 @@
             </div>
             <div class="mb-3">
                 <label for="publication_year" class="form-label">Publication year</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <input name="update_book" type="text" class="form-control" id="publication_year" value="{{ data.publication_year }}">
                 {% else %}
                     <input name="add_book" type="text" class="form-control" id="publication_year">
@@ -106,7 +106,7 @@
             </div>
             <div class="mb-3">
                 <label for="page_count" class="form-label">Page count</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <input name="update_book" type="number" class="form-control" id="page_count" value="{{ data.page_count }}">
                 {% else %}
                     <input name="add_book" type="number" class="form-control" id="page_count">
@@ -114,7 +114,7 @@
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                {% if update == 'update' %}
+                {% if update %}
                     <textarea style="resize: none;" cols="50" rows="5" class="form-control" name="update_book" id="description">{{ data.description }}</textarea>
                     <input type="hidden" value="{{ data.id }}" name="update_book">
                 {% else %}

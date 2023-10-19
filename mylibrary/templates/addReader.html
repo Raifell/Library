@@ -7,7 +7,21 @@
   <meta name="description" content="">
   <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
   <meta name="generator" content="Hugo 0.111.3">
-  <title>Add reader</title>
+  <title>{% if update %}Update Reader{% else %}Add Reader{% endif %}</title>
+  <script>
+      {% if reader_action == 'new' %}
+          alert('Читатель добавлен');
+          window.location.replace("http://127.0.0.1:8000/showreaders");
+      {% endif %}
+      {% if reader_action == 're_new' %}
+          alert('Данные читателя обновлены');
+          window.location.replace("http://127.0.0.1:8000/showreaders");
+      {% endif %}
+      {% if not valid %}
+          alert('Введенные данные не соответствуют форме записи');
+          window.location.replace("http://127.0.0.1:8000/showreaders");
+      {% endif %}
+  </script>
   <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/cover/">
   <link href="/docs/5.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
 
@@ -52,22 +66,43 @@
             {% csrf_token %}
             <div class="mb-3" style="margin-top: 50px;">
                 <label for="reader_name" class="form-label">Reader name</label>
-                <input name="reader_name" type="text" class="form-control" id="reader_name">
+                {% if update %}
+                    <input name="update_reader" type="text" class="form-control" id="reader_name" value="{{ data.name }}">
+                {% else %}
+                    <input name="add_reader" type="text" class="form-control" id="reader_name">
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="reader_surname" class="form-label">Reader surname</label>
-                <input name="reader_surname" type="text" class="form-control" id="reader_surname">
+                {% if update %}
+                    <input name="update_reader" type="text" class="form-control" id="reader_surname" value="{{ data.surname }}">
+                {% else %}
+                    <input name="add_reader" type="text" class="form-control" id="reader_surname">
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="reader_age" class="form-label">Reader age</label>
-                <input name="reader_age" type="number" class="form-control" id="reader_age">
+                {% if update %}
+                    <input name="update_reader" type="number" class="form-control" id="reader_age" value="{{ data.age }}">
+                {% else %}
+                    <input name="add_reader" type="number" class="form-control" id="reader_age">
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="reader_address" class="form-label">Reader address</label>
-                <input name="reader_address" type="text" class="form-control" id="reader_address">
+                {% if update %}
+                    <input name="update_reader" type="text" class="form-control" id="reader_address" value="{{ data.address }}">
+                    <input name="update_reader" type="hidden" value="{{ data.id }}">
+                {% else %}
+                    <input name="add_reader" type="text" class="form-control" id="reader_address">
+                {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Add reader</button>
+            {% if update %}
+                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Update reader</button>
+            {% else %}
+                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Add reader</button>
+            {% endif %}
     </form>
 
 

@@ -8,6 +8,8 @@ def show_start_page(request):
     return render(request, "index.html")
 
 
+###################### Show,Valid,Add - Book #########################
+
 def show_showbooks_page(request):
     if request.method == "POST":
         if 'delete' in request.POST:
@@ -20,11 +22,16 @@ def show_showbooks_page(request):
 
 def valid_book(qery):
     valid = True
+    pattern_title = lambda x: bool(re.compile(r'[a-zA-Zа-яА-ЯйЙёЁ\s0-9-]').match(x))
+    pattern_other = lambda x: bool(re.compile(r'[a-zA-Zа-яА-ЯйЙёЁ\s-]').match(x))
     for book_desc_value in qery[:4]:
         if book_desc_value:
             for index in book_desc_value:
                 if valid:
-                    valid = bool(re.compile(r'[a-zA-Zа-яА-ЯйЙёЁ]').match(index))
+                    valid = pattern_title(index) if book_desc_value == qery[0] else pattern_other(index)
+        else:
+            valid = False
+            break
 
     if qery[4].isdigit():
         if int(qery[4]) < 1900 or int(qery[4]) > 2023:
@@ -57,7 +64,7 @@ def show_addbook_page(request):
                 valid = False
         elif 'update' in request.POST:
             data = Book.objects.get(id=request.POST['update'])
-            update = 'update'
+            update = True
         elif 'update_book' in request.POST:
             up_book_value = request.POST.getlist('update_book')
             if up_book_value[5]:
@@ -78,20 +85,61 @@ def show_addbook_page(request):
     return render(request, "addBook.html", {'data': data, 'update': update, 'valid': valid, 'book_action': book_action})
 
 
-def show_addreader_page(request):
+###################### Show,Valid,Add - Readers #########################
+
+def show_readers(request):
     if request.method == "POST":
-        name = request.POST.get("reader_name")
-        surname = request.POST.get("reader_surname")
-        age = request.POST.get("reader_age")
-        address = request.POST.get("reader_address")
+        if 'delete' in request.POST:
+            Reader.objects.filter(id=request.POST['delete']).delete()
 
-        if age:
-            Reader.objects.create(name=name,
-                                  surname=surname,
-                                  age=age,
-                                  address=address)
+    context = {'readers': Reader.objects.all()}
+    return render(request, 'showreaders.html', context=context)
 
-    return render(request, "addReader.html")
+
+def valid_reader(qery):
+    valid = True
+    for reader_param in [*qery[:2]]:
+        if reader_param:
+            for index in reader_param:
+                if valid:
+                    valid = bool(re.compile(r'[a-zA-Zа-яА-ЯйЙёЁ\s-]').match(index))
+        else:
+            valid = False
+            break
+    if int(qery[2]) < 5 or int(qery[2]) > 90:
+        valid = False
+    return valid
+
+
+def show_addreader_page(request):
+    data = False
+    update = False
+    valid = True
+    reader_action = None
+    if request.method == "POST":
+        if 'add_reader' in request.POST:
+            new_reader = request.POST.getlist('add_reader')
+            valid = valid_reader(new_reader)
+            if valid:
+                reader_action = 'new'
+                Reader.objects.create(name=new_reader[0],
+                                      surname=new_reader[1],
+                                      age=new_reader[2],
+                                      address=new_reader[3])
+        elif 'update' in request.POST:
+            data = Reader.objects.get(id=request.POST['update'])
+            update = True
+        elif 'update_reader' in request.POST:
+            update_reader = request.POST.getlist('update_reader')
+            valid = valid_reader(update_reader)
+            if valid:
+                reader_action = 're_new'
+                Reader.objects.filter(id=update_reader[4]).update(name=update_reader[0],
+                                                                  surname=update_reader[1],
+                                                                  age=update_reader[2],
+                                                                  address=update_reader[3])
+
+    return render(request, "addReader.html", {'data': data, 'update': update, 'valid': valid, 'reader_action': reader_action})
 
 
 def show_addrent_page(request):
@@ -108,11 +156,6 @@ def show_addrent_page(request):
                                     return_date=return_date)
 
     return render(request, "addRent.html")
-
-
-def show_readers(request):
-    context = {'readers': Reader.objects.all()}
-    return render(request, 'showreaders.html', context=context)
 
 
 def show_rents(request):
