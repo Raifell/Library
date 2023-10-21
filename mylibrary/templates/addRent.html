@@ -7,7 +7,29 @@
   <meta name="description" content="">
   <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
   <meta name="generator" content="Hugo 0.111.3">
-  <title>Add Book Rent</title>
+  <title>{% if update %}Update Book Rent{% else %}Add Book Rent{% endif %}</title>
+  <script>
+      {% if rent_action == 'new' %}
+          alert('Новая аренда добавлена');
+          window.location.replace("http://127.0.0.1:8000/showrents");
+      {% endif %}
+      {% if rent_action == 're_new' %}
+          alert('Данные аренды обновлены');
+          window.location.replace("http://127.0.0.1:8000/showrents");
+      {% endif %}
+      {% if valid == 'book_error' %}
+          alert('Ошибка! Книга не найдена');
+          window.location.replace("http://127.0.0.1:8000/showrents");
+      {% endif %}
+      {% if valid == 'user_error' %}
+          alert('Ошибка! Пользователь не найден');
+          window.location.replace("http://127.0.0.1:8000/showrents");
+      {% endif %}
+      {% if valid == 'time_error' %}
+          alert('Ошибка! Время возвращения книги, не может быть раньше, чем время начала аренды');
+          window.location.replace("http://127.0.0.1:8000/showrents");
+      {% endif %}
+  </script>
   <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/cover/">
   <link href="/docs/5.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
 
@@ -52,22 +74,42 @@
             {% csrf_token %}
             <div class="mb-3" style="margin-top: 50px;">
                 <label for="book_title" class="form-label">Book title</label>
-                <input name="book_title" type="text" class="form-control" id="book_title">
+                {% if update %}
+                    <input name="update_rent" type="text" class="form-control" id="book_title" value="{{ data.book_title }}">
+                {% else %}
+                    <input name="add_rent" type="text" class="form-control" id="book_title">
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="reader_surname" class="form-label">Reader surname</label>
-                <input name="reader_surname" type="text" class="form-control" id="reader_surname">
+                {% if update %}
+                    <input name="update_rent" type="text" class="form-control" id="reader_surname" value="{{ data.reader_surname }}">
+                {% else %}
+                    <input name="add_rent" type="text" class="form-control" id="reader_surname">
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="rent_date" class="form-label">Rent date</label>
-                <input name="rent_date" type="date" class="form-control" id="rent_date">
+                {% if update %}
+                    <input name="update_rent" type="date" class="form-control" id="rent_date" value="{{ data.rent_date }}">
+                {% else %}
+                    <input name="add_rent" type="date" class="form-control" id="rent_date">
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="return_date" class="form-label">Return date</label>
-                <input name="return_date" type="date" class="form-control" id="return_date">
+                {% if update %}
+                    <input name="update_rent" type="date" class="form-control" id="return_date" value="{{ data.return_date }}">
+                    <input name="update_rent" type="hidden" value="{{ data.id }}">
+                {% else %}
+                    <input name="add_rent" type="date" class="form-control" id="return_date">
+                {% endif %}
             </div>
-
-            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Add book rent</button>
+            {% if update %}
+                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Update book rent</button>
+            {% else %}
+                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Add book rent</button>
+            {% endif %}
     </form>
 
 

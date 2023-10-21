@@ -1,3 +1,4 @@
+import datetime
 import re
 from django.shortcuts import render
 from .models import Book, Reader, BookRent
@@ -142,22 +143,64 @@ def show_addreader_page(request):
     return render(request, "addReader.html", {'data': data, 'update': update, 'valid': valid, 'reader_action': reader_action})
 
 
-def show_addrent_page(request):
-    if request.method == "POST":
-        title = request.POST.get("book_title")
-        reader = request.POST.get("reader_surname")
-        rent_date = request.POST.get("rent_date")
-        return_date = request.POST.get("return_date")
-
-        if rent_date and return_date:
-            BookRent.objects.create(book_title=title,
-                                    reader_surname=reader,
-                                    rent_date=rent_date,
-                                    return_date=return_date)
-
-    return render(request, "addRent.html")
-
+###################### Show,Valid,Add - Rent #########################
 
 def show_rents(request):
+    if request.method == "POST":
+        if 'delete' in request.POST:
+            BookRent.objects.filter(id=request.POST['delete']).delete()
+
     context = {'rents': BookRent.objects.all()}
     return render(request, 'showrents.html', context=context)
+
+
+def valid_rent(qery):
+    valid = 'clear'
+    books = [book_title for dict_ in Book.objects.values('title') for book_title in dict_.values()]
+    users = [user_surname for dict_ in Reader.objects.values('surname') for user_surname in dict_.values()]
+    if qery[0] not in books:
+        return 'book_error'
+    if qery[1] not in users:
+        return 'user_error'
+    if qery[2] and qery[3]:
+        start = datetime.datetime.strptime(qery[2], '%Y-%m-%d').date()
+        end = datetime.datetime.strptime(qery[3], '%Y-%m-%d').date()
+        if start >= end:
+            return 'time_error'
+    else:
+        return 'time_error'
+    return valid
+
+
+def show_addrent_page(request):
+    data = False
+    update = False
+    valid = 'clear'
+    rent_action = None
+    if request.method == "POST":
+        if 'add_rent' in request.POST:
+            new_rent = request.POST.getlist('add_rent')
+            valid = valid_rent(new_rent)
+
+            if valid == 'clear':
+                rent_action = 'new'
+                BookRent.objects.create(book_title=new_rent[0],
+                                        reader_surname=new_rent[1],
+                                        rent_date=new_rent[2],
+                                        return_date=new_rent[3])
+        elif 'update' in request.POST:
+            data = BookRent.objects.get(id=request.POST['update'])
+            data.rent_date = str(data.rent_date)
+            data.return_date = str(data.return_date)
+            update = True
+        elif 'update_rent' in request.POST:
+            update_rent = request.POST.getlist('update_rent')
+            valid = valid_rent(update_rent)
+            if valid == 'clear':
+                rent_action = 're_new'
+                BookRent.objects.filter(id=update_rent[4]).update(book_title=update_rent[0],
+                                                                  reader_surname=update_rent[1],
+                                                                  rent_date=update_rent[2],
+                                                                  return_date=update_rent[3])
+
+    return render(request, "addRent.html", {'data': data, 'update': update, 'valid': valid, 'rent_action': rent_action})
